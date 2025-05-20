@@ -11,3 +11,9 @@
 main:
 	push	{fp,lr}		
 	add	fp,	sp,	#4
+	mov	r1,	#7	
+	push	{r1}		
+	mov	r1,	#45	
+	push	{r1}		
+	pop	{r1}				 @ dépile exp2 dans r1
+	pop	{r0}				 @ dépile exp1 dans r0

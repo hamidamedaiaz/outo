@@ -100,17 +100,105 @@ Affiche le code arm correspondant à une instruction
 def gen_instruction(instruction):
     if type(instruction) == arbre_abstrait.Ecrire:
         gen_ecrire(instruction)
+    elif type(instruction) == arbre_abstrait.Tantque: 
+        gen_tantque(instruction)
+    elif type(instruction) == arbre_abstrait.Si:  
+        gen_si(instruction)
+    elif type(instruction) == arbre_abstrait.Affectation: 
+        gen_affectation(instruction)
+    elif type(instruction) == arbre_abstrait.Declaration:  
+        gen_declaration(instruction)
     else:
         erreur("génération type instruction non implémenté "+str(type(instruction)))
 
 """
 Affiche le code arm correspondant au fait d'envoyer la valeur entière d'une expression sur la sortie standard
 """	
+
 def gen_ecrire(ecrire):
     gen_expression(ecrire.exp) #on calcule et empile la valeur d'expression
     arm_instruction("pop", "{r1}", "", "", "") #on dépile la valeur d'expression sur r1
     arm_instruction("ldr", "r0", "=.LC1", "", "")
     arm_instruction("bl", "printf", "", "", "") #on envoie la valeur de r1 sur la sortie standard
+
+def gen_tantque(tantque):
+    
+   
+    etiq_debut = arm_nouvelle_etiquette()
+    etiq_fin = arm_nouvelle_etiquette()
+    
+   
+    printifm(etiq_debut + ":")
+    
+   
+    gen_expression(tantque.condition)
+    arm_instruction("pop", "{r1}", "", "", "dépile la condition")
+    
+   
+    arm_instruction("cmp", "r1", "#0", "", "teste si condition == 0 (faux)")
+    
+   
+    arm_instruction("beq", etiq_fin, "", "", "saut si condition fausse")
+    
+   
+    gen_listeInstructions(tantque.bloc)
+    
+  
+    arm_instruction("b", etiq_debut, "", "", "retour au début de la boucle")
+    
+    
+    printifm(etiq_fin + ":")
+
+
+def gen_si(si):
+   
+    etiq_fin = arm_nouvelle_etiquette()
+    etiq_sinon = arm_nouvelle_etiquette()
+    
+    gen_expression(si.condition)
+    arm_instruction("pop", "{r1}", "", "", "dépile la condition")
+    arm_instruction("cmp", "r1", "#0", "", "teste si condition == 0 (faux)")
+    
+   
+    arm_instruction("beq", etiq_sinon, "", "", "saut si condition fausse")
+    
+   
+    gen_listeInstructions(si.corps_si)
+    arm_instruction("b", etiq_fin, "", "", "saut vers la fin")
+    
+  
+    printifm(etiq_sinon + ":")
+    
+    
+    if si.corps_sinon_si:
+        for elif_block in si.corps_sinon_si:
+            gen_elif(elif_block, etiq_fin)
+    
+    
+    if si.corps_sinon:
+        gen_listeInstructions(si.corps_sinon.corps_else)
+    
+   
+    printifm(etiq_fin + ":")
+
+def gen_elif(elif_block, etiq_fin):
+   
+    etiq_next = arm_nouvelle_etiquette()
+    
+   
+    gen_expression(elif_block.condition)
+    arm_instruction("pop", "{r1}", "", "", "dépile la condition")
+    arm_instruction("cmp", "r1", "#0", "", "teste si condition == 0 (faux)")
+    
+    
+    arm_instruction("beq", etiq_next, "", "", "saut si condition fausse")
+    
+   
+    gen_listeInstructions(elif_block.corps_elif)
+    arm_instruction("b", etiq_fin, "", "", "saut vers la fin")
+    
+  
+    printifm(etiq_next + ":")
 
 def gen_lire(lire):
     gen_expression(lire.op)
@@ -123,10 +211,15 @@ Affiche le code arm pour calculer et empiler la valeur d'une expression
 """
 def gen_expression(expression):
     if type(expression) == arbre_abstrait.Operation:
-        gen_operation(expression) #on calcule et empile la valeur de l'opération
+        gen_operation(expression) 
     elif type(expression) == arbre_abstrait.Entier:
-              arm_instruction("mov", "r1", "#"+str(expression.valeur), "", "") #on met sur la pile la valeur entière
-              arm_instruction("push", "{r1}", "", "", "") #on met sur la pile la valeur entière			
+              arm_instruction("mov", "r1", "#"+str(expression.valeur), "", "") 
+              arm_instruction("push", "{r1}", "", "", "") 
+    elif type(expression) == arbre_abstrait.Booleen:  
+        
+        valeur = 1 if expression.valeur else 0
+        arm_instruction("mov", "r1", "#"+str(valeur), "", "")
+        arm_instruction("push", "{r1}", "", "", "")			
     else:
         erreur("type d'expression inconnu"+str(type(expression)))
 

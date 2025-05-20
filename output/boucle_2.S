@@ -11,3 +11,4 @@
 main:
 	push	{fp,lr}		
 	add	fp,	sp,	#4
+e0:

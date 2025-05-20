@@ -11,3 +11,7 @@
 main:
 	push	{fp,lr}		
 	add	fp,	sp,	#4
+	mov	r1,	#0	
+	push	{r1}		
+	mov	r1,	#0	
+	push	{r1}		

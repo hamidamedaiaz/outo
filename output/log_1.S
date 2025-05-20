@@ -11,3 +11,15 @@
 main:
 	push	{fp,lr}		
 	add	fp,	sp,	#4
+	mov	r1,	#0	
+	push	{r1}		
+	pop	{r1}		
+	ldr	r0,	=.LC1	
+	bl	printf		
+	mov	r1,	#1	
+	push	{r1}		
+	pop	{r1}		
+	ldr	r0,	=.LC1	
+	bl	printf		
+	mov	r0,	#0	
+	pop	{fp, pc}		
