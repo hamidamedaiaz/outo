@@ -4,7 +4,9 @@ from sly import Lexer
 
 class FloLexer(Lexer):
     # Noms des lexèmes (sauf les litéraux). En majuscule. Ordre non important
-    tokens = { IDENTIFIANT, ENTIER, ECRIRE, LIRE, INFERIEUR_OU_EGAL, BOOLEAN, EGAL, SUPERIEUR, INFERIEUR, DIFFERENT, RETOURNER, ET, OU, NON, AFFECTATION, TANTQUE, SINON}
+    tokens = { IDENTIFIANT, ENTIER, ECRIRE, LIRE, INFERIEUR_OU_EGAL, 
+    BOOLEEN, EGAL, SUPERIEUR, INFERIEUR, DIFFERENT, RETOURNER, ET, OU, 
+    NON, AFFECTATION, TANTQUE, SINON, SI, SUPERIEUR_OU_EGAL, TYPE_BOOLEEN, TYPE_ENTIER, SINON_SI}
 
     #Les caractères litéraux sont des caractères uniques qui sont retournés tel quel quand rencontré par l'analyse lexicale. 
     #Les litéraux sont vérifiés en dernier, après toutes les autres règles définies par des expressions régulières.
@@ -21,6 +23,8 @@ class FloLexer(Lexer):
     INFERIEUR =r'<'
     DIFFERENT =r'!='
     AFFECTATION =r'='
+    SUPERIEUR_OU_EGAL=r'>='
+    
 
     
     @_(r'0|[1-9][0-9]*')
@@ -29,10 +33,14 @@ class FloLexer(Lexer):
         return t
 
     @_(r'Vrai|Faux')
-    def BOOLEAN(self,t):
+    def BOOLEEN(self,t):
         t.value = t.value == 'Vrai'
         return t
     
+    @_(r'sinon\s+si')
+    def SINON_SI(self, t):
+        return t
+
 
     @_(r'[a-zA-Z][a-zA-Z0-9_]*')
     def IDENTIFIANT(self, t):
@@ -48,14 +56,16 @@ class FloLexer(Lexer):
             t.type = 'TANTQUE'
         elif t.value == 'sinon':
             t.type ='SINON'
+        elif t.value == 'si':
+            t.type = 'SI'
         elif t.value =='retourner':
             t.type ='RETOURNER'
         elif t.value == 'lire':
             t.type ='LIRE'
-        elif t.value == 'boolean':
-            t.type ='TYPE'
+        elif t.value == 'booleen':
+            t.type ='TYPE_BOOLEEN'
         elif t.value == 'entier':
-            t.type ='ENTIER'
+            t.type ='TYPE_ENTIER'
         return t
     #Syntaxe des commentaires à ignorer
     ignore_comment = r'\#.*'
