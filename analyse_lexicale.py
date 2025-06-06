@@ -17,13 +17,15 @@ class FloLexer(Lexer):
     ignore = ' \t'
 
     # Expressions régulières correspondant au différents Lexèmes par ordre de priorité
-    INFERIEUR_OU_EGAL= r'<='
-    EGAL=r'=='
-    SUPERIEUR =r'>'
-    INFERIEUR =r'<'
-    DIFFERENT =r'!='
-    AFFECTATION =r'='
-    SUPERIEUR_OU_EGAL=r'>='
+    # Expressions régulières correspondant au différents Lexèmes par ordre de priorité
+    SUPERIEUR_OU_EGAL = r'>='
+    INFERIEUR_OU_EGAL = r'<='
+    EGAL = r'=='
+    DIFFERENT = r'!='
+    SUPERIEUR = r'>'
+    INFERIEUR = r'<'
+    AFFECTATION = r'='
+
     
 
     

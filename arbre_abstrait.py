@@ -34,6 +34,7 @@ class Operation:
         self.exp1 = exp1
         self.op = op
         self.exp2 = exp2
+        self.type = None
     def afficher(self,indent=0):
         afficher(f'<operation "{self.op}">',indent)
         self.exp1.afficher(indent+1)
@@ -43,11 +44,13 @@ class Operation:
 class Entier:
     def __init__(self,valeur):
         self.valeur = valeur
+        self.type = "entier"
     def afficher(self,indent=0):
         afficher("[Entier:"+str(self.valeur)+"]",indent)
 class Booleen:
     def __init__(self,valeur):
         self.valeur = valeur
+        self.type = "booleen"
     def afficher(self,indent=0):
         afficher("[Booleen:"+str(self.valeur)+"]",indent)
 

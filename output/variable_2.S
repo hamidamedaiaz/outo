@@ -11,3 +11,12 @@
 main:
 	push	{fp,lr}		
 	add	fp,	sp,	#4
+	mov	r1,	#1	
+	push	{r1}		
+	pop	{r0}				 @ dépile la valeur de l'expression dans r0
+	push	{r0}				 @ stocke la valeur de la variable a
+	mov	r1,	#11	
+	push	{r1}		
+	pop	{r0}				 @ dépile la valeur de l'expression dans r0
+	push	{r0}				 @ stocke la valeur de la variable b
+e0:

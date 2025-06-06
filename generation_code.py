@@ -108,13 +108,25 @@ def gen_instruction(instruction):
         gen_affectation(instruction)
     elif type(instruction) == arbre_abstrait.Declaration:  
         gen_declaration(instruction)
+    elif type(instruction) == arbre_abstrait.DeclarationAffectation:
+        gen_declarationAffectation(instruction)
     else:
         erreur("génération type instruction non implémenté "+str(type(instruction)))
 
 """
 Affiche le code arm correspondant au fait d'envoyer la valeur entière d'une expression sur la sortie standard
 """	
-
+def gen_declarationAffectation(decl):
+    gen_expression(decl.expression)  # empile la valeur
+    arm_instruction("pop", "{r0}", "", "", f"dépile la valeur de l'expression dans r0")
+    arm_instruction("push", "{r0}", "", "", f"stocke la valeur de la variable {decl.nom_variable}")
+def gen_declaration(decl):
+    arm_instruction("sub", "sp", "sp", "#4", f"réserver 4 octets pour la variable {decl.nom}")
+# Supposons offset connu pour x :
+def gen_affectation(affect):
+    gen_expression(affect.expression)
+    arm_instruction("pop", "{r0}", "", "", "valeur à affecter")
+    arm_instruction("str", "r0", f"[fp, #-offset]", "", f"store dans variable {affect.expr}")
 def gen_ecrire(ecrire):
     gen_expression(ecrire.exp) #on calcule et empile la valeur d'expression
     arm_instruction("pop", "{r1}", "", "", "") #on dépile la valeur d'expression sur r1
@@ -201,25 +213,32 @@ def gen_elif(elif_block, etiq_fin):
     printifm(etiq_next + ":")
 
 def gen_lire(lire):
-    gen_expression(lire.op)
-    arm_instruction("ldr", "r0", "=.LC1", "", "")
-    arm_instruction("sub", "sp", "sp", "", "")
-    arm_instruction("movs", "{r1}", "sp", "", "")
-    arm_instruction("bl", "scanf", "", "", "")
+    arm_instruction("ldr", "r0", "=.LC0", "", "adresse du format %d")
+    arm_instruction("sub", "sp", "sp", "#4", "réserver 4 octets sur la pile")
+    arm_instruction("mov", "r1", "sp", "", "adresse où stocker l'entier lu")
+    arm_instruction("bl", "scanf", "", "", "appel à scanf")
+    arm_instruction("ldr", "r0", "[sp]", "", "charger l'entier lu")
+    arm_instruction("add", "sp", "sp", "#4", "libérer la pile")
+    arm_instruction("push", "{r0}", "", "", "empiler la valeur lue")
 """
 Affiche le code arm pour calculer et empiler la valeur d'une expression
 """
 def gen_expression(expression):
     if type(expression) == arbre_abstrait.Operation:
-        gen_operation(expression) 
+        return gen_operation(expression) 
     elif type(expression) == arbre_abstrait.Entier:
               arm_instruction("mov", "r1", "#"+str(expression.valeur), "", "") 
-              arm_instruction("push", "{r1}", "", "", "") 
-    elif type(expression) == arbre_abstrait.Booleen:  
+              arm_instruction("push", "{r1}", "", "", "")
+              return "entier"
+    elif type(expression) == arbre_abstrait.Booleen:
         
         valeur = 1 if expression.valeur else 0
         arm_instruction("mov", "r1", "#"+str(valeur), "", "")
-        arm_instruction("push", "{r1}", "", "", "")			
+        arm_instruction("push", "{r1}", "", "", "")
+        return "booléen"
+    elif type(expression) == arbre_abstrait.Lire:
+        gen_lire(expression)
+        return "entier"
     else:
         erreur("type d'expression inconnu"+str(type(expression)))
 
@@ -229,25 +248,91 @@ Affiche le code arm pour calculer l'opération et la mettre en haut de la pile
 """
 def gen_operation(operation):
     op = operation.op
-        
-    gen_expression(operation.exp1) #on calcule et empile la valeur de exp1
-    gen_expression(operation.exp2) #on calcule et empile la valeur de exp2
-    
+
+    # --- Unary 'non' handling (remains the same) ---
+    if op == 'non':
+        type1 = gen_expression(operation.exp1)
+        if type1 != "booléen":
+            erreur(f"Erreur de type : opérateur logique 'non' appliqué à un non-booléen")
+        arm_instruction("pop", "{r0}", "", "", "dépile exp1 dans r0")
+        arm_instruction("cmp", "r0", "#0", "", "compare à 0")
+        arm_instruction("moveq", "r0", "#1", "", "si égal à 0 -> 1")
+        arm_instruction("movne", "r0", "#0", "", "sinon -> 0")
+        arm_instruction("push", "{r0}", "", "", "empile le résultat")
+        operation.type = "booléen"
+        return "booléen" # Important to return here for unary ops
+
+    # --- Binary operations ---
+    # Generate code for both expressions first
+    type1 = gen_expression(operation.exp1)
+    type2 = gen_expression(operation.exp2) # Assumes exp2 is always present for binary ops
+
+    # Dépile les valeurs des deux opérandes dans r0 et r1
     arm_instruction("pop", "{r1}", "", "", "dépile exp2 dans r1")
     arm_instruction("pop", "{r0}", "", "", "dépile exp1 dans r0")
-    
-    code = {"+":"add","*":"mul","-":"sub"} #Un dictionnaire qui associe à chaque opérateur sa fonction arm
-    #Voir: https://developer.arm.com/documentation/dui0497/a/the-cortex-m0-instruction-set/instruction-set-summary?lang=en
-    if op in ['+','*','-']:
-        arm_instruction(code[op], "r0", "r0", "r1", "effectue l'opération r0" +op+"r1 et met le résultat dans r0" )
-    elif op == '/':
-        arm_instruction("bl", "__aeabi_idiv", "", "", "appel à la division entière r0/r1, résultat dans r0")
-    elif op == '%':
-        arm_instruction("bl", "__aeabi_idivmod", "", "", "appel à la division modulaire, reste dans r1")
-        arm_instruction("mov", "r0", "r1", "", "copie le reste de r1 vers r0")
+
+    # --- Type checking and ARM generation based on operator type ---
+    if op in ['+', '-', '*', '/', '%']:
+        if type1 != "entier" or type2 != "entier":
+            erreur(f"Erreur de type : opérateur arithmétique '{op}' appliqué à des non-entiers")
+        operation.type = "entier" # Result is an integer
+        # ARM generation for arithmetic ops
+        code = {"+":"add","*":"mul","-":"sub"}
+        if op in ['+','-']:
+            arm_instruction(code[op], "r0", "r0", "r1", "effectue l'opération r0" +op+"r1 et met le résultat dans r0" )
+        elif op == '*':
+    # Eviter Rd == Rm en utilisant r2 comme tampon
+            arm_instruction("mov", "r2", "r0", "", "copie r0 dans r2")
+            arm_instruction("mul", "r0", "r1", "r2", "r0 = r1 * r2")
+        elif op == '/':
+            arm_instruction("bl", "__aeabi_idiv", "", "", "division entière")
+        elif op == '%':
+            arm_instruction("bl", "__aeabi_idivmod", "", "", "appel à la division modulaire, reste dans r1")
+            arm_instruction("mov", "r0", "r1", "", "copie le reste de r1 vers r0")
+
+    elif op in ['==', '!=', '<', '>', '<=', '>=']: # Comparison operators
+        if type1 != "entier" or type2 != "entier": # <--- THEY OPERATE ON INTEGERS
+            erreur(f"Erreur de type : opérateur de comparaison '{op}' appliqué à des non-entiers")
+        operation.type = "booléen" # <--- BUT PRODUCE A BOOLEAN RESULT
+        # ARM generation for comparison ops (your existing code here)
+        arm_instruction("cmp", "r0", "r1", "", "compare r0 et r1")
+        etiq_vrai = arm_nouvelle_etiquette()
+        etiq_fin = arm_nouvelle_etiquette()
+        saut = {
+            "==": "beq",
+            "!=": "bne",
+            "<":  "blt",
+            ">":  "bgt",
+            "<=": "ble",
+            ">=": "bge"
+        }
+        arm_instruction(saut[op], etiq_vrai, "", "", f"saut si {op} est vrai")
+        arm_instruction("mov", "r0", "#0", "", "résultat faux")
+        arm_instruction("b", etiq_fin, "", "", "saut vers fin")
+        printifm(etiq_vrai + ":")
+        arm_instruction("mov", "r0", "#1", "", "résultat vrai")
+        printifm(etiq_fin + ":")
+
+    elif op in ['et', 'ou']: # Logical operators
+        if type1 != "booléen" or type2 != "booléen":
+            erreur(f"Erreur de type : opérateur logique '{op}' appliqué à des non-booléens")
+        operation.type = "booléen" # Result is a boolean
+        # ARM generation for logical ops
+        if op == 'et':
+            arm_instruction("mul", "r0", "r0", "r1", "et booléen = multiplication") # Simpler for boolean AND (0*0=0, 0*1=0, 1*0=0, 1*1=1)
+        elif op == 'ou':
+            arm_instruction("add", "r0", "r0", "r1", "ou logique: r0 + r1")
+            arm_instruction("cmp", "r0", "#2", "", "compare avec 2")
+            etiq_fin_ou = arm_nouvelle_etiquette()
+            arm_instruction("blt", etiq_fin_ou, "", "", "saut si < 2")
+            arm_instruction("mov", "r0", "#1", "", "si >= 2, mettre 1")
+            printifm(etiq_fin_ou + ":")
+
     else:
         erreur("operateur \""+op+"\" non implémenté")
+
     arm_instruction("push",  "{r0}" , "", "", "empile le résultat")
+    return operation.type
 
 
 if __name__ == "__main__":
