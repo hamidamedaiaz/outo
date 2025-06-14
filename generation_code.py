@@ -426,7 +426,7 @@ if __name__ == "__main__":
     if sys.argv[1] == "-arm":
         afficher_code = True
     else:
-        afficher_table = True
+        afficher_table = Truea
         
     # INITIALISATION OBLIGATOIRE
     table_symboles = TableDesSymboles()
