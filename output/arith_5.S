@@ -29,7 +29,7 @@ main:
 	push	{r1}		
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	sub	r0,	r0,	r1		 @ effectue l'opération r0-r1 et met le résultat dans r0
+	sub	r0,	r0,	r1		 @ effectue la soustraction
 	push	{r0}				 @ empile le résultat
 	mov	r1,	#10	
 	push	{r1}		
@@ -49,7 +49,7 @@ main:
 	push	{r1}		
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	sub	r0,	r0,	r1		 @ effectue l'opération r0-r1 et met le résultat dans r0
+	sub	r0,	r0,	r1		 @ effectue la soustraction
 	push	{r0}				 @ empile le résultat
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
@@ -65,7 +65,7 @@ main:
 	push	{r1}		
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	sub	r0,	r0,	r1		 @ effectue l'opération r0-r1 et met le résultat dans r0
+	sub	r0,	r0,	r1		 @ effectue la soustraction
 	push	{r0}				 @ empile le résultat
 	mov	r1,	#0	
 	push	{r1}		
@@ -73,7 +73,7 @@ main:
 	push	{r1}		
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	sub	r0,	r0,	r1		 @ effectue l'opération r0-r1 et met le résultat dans r0
+	sub	r0,	r0,	r1		 @ effectue la soustraction
 	push	{r0}				 @ empile le résultat
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0

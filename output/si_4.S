@@ -33,7 +33,7 @@ e3:
 	push	{r1}		
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	add	r0,	r0,	r1		 @ effectue l'opération r0+r1 et met le résultat dans r0
+	add	r0,	r0,	r1		 @ effectue l'addition
 	push	{r0}				 @ empile le résultat
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
@@ -86,7 +86,7 @@ e10:
 	push	{r1}		
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	add	r0,	r0,	r1		 @ effectue l'opération r0+r1 et met le résultat dans r0
+	add	r0,	r0,	r1		 @ effectue l'addition
 	push	{r0}				 @ empile le résultat
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0

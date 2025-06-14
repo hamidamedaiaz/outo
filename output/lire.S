@@ -59,7 +59,7 @@ main:
 	push	{r0}				 @ empiler la valeur lue
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	add	r0,	r0,	r1		 @ effectue l'opération r0+r1 et met le résultat dans r0
+	add	r0,	r0,	r1		 @ effectue l'addition
 	push	{r0}				 @ empile le résultat
 	pop	{r1}		
 	ldr	r0,	=.LC1	
@@ -80,7 +80,7 @@ main:
 	push	{r0}				 @ empiler la valeur lue
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	sub	r0,	r0,	r1		 @ effectue l'opération r0-r1 et met le résultat dans r0
+	sub	r0,	r0,	r1		 @ effectue la soustraction
 	push	{r0}				 @ empile le résultat
 	pop	{r1}		
 	ldr	r0,	=.LC1	
@@ -124,7 +124,7 @@ main:
 	push	{r1}		
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	add	r0,	r0,	r1		 @ effectue l'opération r0+r1 et met le résultat dans r0
+	add	r0,	r0,	r1		 @ effectue l'addition
 	push	{r0}				 @ empile le résultat
 	ldr	r0,	=.LC0			 @ adresse du format %d
 	sub	sp,	sp,	#4		 @ réserver 4 octets sur la pile
@@ -135,8 +135,8 @@ main:
 	push	{r0}				 @ empiler la valeur lue
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	bl	__aeabi_idivmod				 @ appel à la division modulaire, reste dans r1
-	mov	r0,	r1			 @ copie le reste de r1 vers r0
+	bl	__aeabi_idivmod				 @ modulo
+	mov	r0,	r1			 @ copie le reste
 	push	{r0}				 @ empile le résultat
 	pop	{r1}		
 	ldr	r0,	=.LC1	

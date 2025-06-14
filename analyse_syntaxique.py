@@ -7,18 +7,33 @@ class FloParser(Parser):
     
     tokens = FloLexer.tokens
 
-    
+    # Règles de précédence pour ÉLIMINER TOUS LES CONFLITS
+    precedence = (
+        ('left', 'OU'),
+        ('left', 'ET'),
+        ('right', 'NON'),
+        ('left', 'EGAL', 'DIFFERENT', 'INFERIEUR', 'INFERIEUR_OU_EGAL', 'SUPERIEUR', 'SUPERIEUR_OU_EGAL'),
+        ('left', '+', '-'),
+        ('left', '*', '/', '%'),
+        ('right', 'UMINUS'),
+    )
 
+    # Nombre de conflits attendus - DOIT ÊTRE 0
+    expected_shift_reduce = 0
 
-
-
-
-
+    #-----------------------
+    # Programme principal - 2 règles pour gérer avec/sans fonctions
     #-----------------------
     @_('listeFonctions listeInstructions')
     def prog(self, p):
         return arbre_abstrait.Programme(p.listeFonctions, p.listeInstructions)    
 
+    @_('listeInstructions')
+    def prog(self, p):
+        return arbre_abstrait.Programme(arbre_abstrait.ListeFonctions(), p.listeInstructions)
+
+    #------------------------------------------
+    # Fonctions
     #------------------------------------------
     @_('')
     def listeFonctions(self, p):
@@ -52,12 +67,20 @@ class FloParser(Parser):
     def parametre(self, p):
         return arbre_abstrait.Parametre(p.TYPE, p.IDENTIFIANT)
 
+    #---------------------
+    # Types
+    #---------------------
+    @_('TYPE_ENTIER')
+    def TYPE(self, p):
+        return 'entier'
+
+    @_('TYPE_BOOLEEN')
+    def TYPE(self, p):
+        return 'booleen'
+
+    #---------------------
+    # Instructions
     #---------------------         
-
-
-
-
-
     @_('instruction')
     def listeInstructions(self, p):
         l = arbre_abstrait.ListeInstructions()
@@ -72,132 +95,6 @@ class FloParser(Parser):
     @_('ecrire')
     def instruction(self, p):
         return p[0]
-            
-    @_('ECRIRE "(" expr ")" ";"')
-    def ecrire(self, p):
-        return arbre_abstrait.Ecrire(p.expr) 
-    
-    @_('booleen')
-    def expr(self, p):
-        return p.booleen
-
-    
-    @_('ouLogique')
-    def booleen(self, p):
-        return p.ouLogique
-
-    
-    @_('etLogique')
-    def ouLogique(self, p):
-        return p.etLogique
-
-    @_('ouLogique OU etLogique')
-    def ouLogique(self, p):
-        return arbre_abstrait.Operation('ou', p.ouLogique, p.etLogique)
-
-    
-    @_('negation')
-    def etLogique(self, p):
-        return p.negation
-
-    @_('etLogique ET negation')
-    def etLogique(self, p):
-        return arbre_abstrait.Operation('et', p.etLogique, p.negation)
-
-    
-    @_('comparaison')
-    def negation(self, p):
-        return p.comparaison
-
-    @_('somme')
-    def comparaison(self, p):
-        return p.somme
-
-
-    @_('NON negation')
-    def negation(self, p):
-        return arbre_abstrait.Operation('non', p.negation, None)
-
-
-    @_('somme EGAL somme')
-    def comparaison(self, p):
-        return arbre_abstrait.Operation('==', p[0], p[2])
-
-    @_('somme DIFFERENT somme')
-    def comparaison(self, p):
-        return arbre_abstrait.Operation('!=', p[0], p[2])
-
-    @_('somme INFERIEUR somme')
-    def comparaison(self, p):
-        return arbre_abstrait.Operation('<', p[0], p[2])
-
-    @_('somme INFERIEUR_OU_EGAL somme')
-    def comparaison(self, p):
-        return arbre_abstrait.Operation('<=', p[0], p[2])
-
-    @_('somme SUPERIEUR somme')
-    def comparaison(self, p):
-        return arbre_abstrait.Operation('>', p[0], p[2])
-
-    @_('somme SUPERIEUR_OU_EGAL somme')
-    def comparaison(self, p):
-        return arbre_abstrait.Operation('>=', p[0], p[2])
-    
-    @_('somme "+" produit')
-    def somme(self, p):
-        return arbre_abstrait.Operation('+', p[0], p[2])
-
-    @_('somme "-" produit')
-    def somme(self, p):
-        return arbre_abstrait.Operation('-', p[0], p[2])
-
-    @_('produit')
-    def somme(self, p):
-        return p.produit
-
-    @_('produit "*" facteur')
-    def produit(self, p):
-        return arbre_abstrait.Operation(p[1], p[0], p[2])
-
-    @_('produit "/" facteur')
-    def produit(self, p):
-        return arbre_abstrait.Operation('/', p[0], p[2])
-
-    @_('produit "%" facteur')
-    def produit(self, p):
-        return arbre_abstrait.Operation('%', p[0], p[2])
-
-    @_('facteur')
-    def argument(self, p):
-        return p.facteur
-
-    @_('argument')
-    def listeArguments(self, p):
-        return [p.argument]
-
-    @_('argument "," listeArguments')
-    def listeArguments(self, p):
-        return [p.argument] + p.listeArguments
-
-    @_('facteur')
-    def produit(self, p):
-        return p.facteur
-
-    @_('IDENTIFIANT')
-    def facteur(self, p):
-        return arbre_abstrait.Variable(p.IDENTIFIANT)
-
-    @_('LIRE "(" ")"')
-    def facteur(self, p):
-        return arbre_abstrait.Lire()
-
-    @_('IDENTIFIANT "(" listeArguments ")" ";"')
-    def instruction(self, p):
-        return arbre_abstrait.AppelFonctionInstruction(p.IDENTIFIANT, p.listeArguments)
-    
-    @_('IDENTIFIANT "(" listeArguments ")"')
-    def facteur(self, p):
-        return arbre_abstrait.AppelFonction(p.IDENTIFIANT, p.listeArguments)
 
     @_('IDENTIFIANT AFFECTATION expr ";"')
     def instruction(self, p):
@@ -226,7 +123,150 @@ class FloParser(Parser):
     def instruction(self, p):
         return arbre_abstrait.Retourner(p.expr)
 
+    @_('IDENTIFIANT "(" listeArguments ")" ";"')
+    def instruction(self, p):
+        return arbre_abstrait.AppelFonctionInstruction(p.IDENTIFIANT, p.listeArguments)
+            
+    @_('ECRIRE "(" expr ")" ";"')
+    def ecrire(self, p):
+        return arbre_abstrait.Ecrire(p.expr) 
 
+    #---------------------
+    # Expressions - CASCADE STRICTE pour éviter les conflits
+    #---------------------
+    @_('disjonction')
+    def expr(self, p):
+        return p.disjonction
+
+    @_('conjonction')
+    def disjonction(self, p):
+        return p.conjonction
+
+    @_('disjonction OU conjonction')
+    def disjonction(self, p):
+        return arbre_abstrait.Operation('ou', p.disjonction, p.conjonction)
+
+    @_('negation')
+    def conjonction(self, p):
+        return p.negation
+
+    @_('conjonction ET negation')
+    def conjonction(self, p):
+        return arbre_abstrait.Operation('et', p.conjonction, p.negation)
+
+    @_('comparaison')
+    def negation(self, p):
+        return p.comparaison
+
+    @_('NON negation')
+    def negation(self, p):
+        return arbre_abstrait.Operation('non', p.negation, None)
+
+    @_('somme')
+    def comparaison(self, p):
+        return p.somme
+
+    @_('somme EGAL somme')
+    def comparaison(self, p):
+        return arbre_abstrait.Operation('==', p[0], p[2])
+
+    @_('somme DIFFERENT somme')
+    def comparaison(self, p):
+        return arbre_abstrait.Operation('!=', p[0], p[2])
+
+    @_('somme INFERIEUR somme')
+    def comparaison(self, p):
+        return arbre_abstrait.Operation('<', p[0], p[2])
+
+    @_('somme INFERIEUR_OU_EGAL somme')
+    def comparaison(self, p):
+        return arbre_abstrait.Operation('<=', p[0], p[2])
+
+    @_('somme SUPERIEUR somme')
+    def comparaison(self, p):
+        return arbre_abstrait.Operation('>', p[0], p[2])
+
+    @_('somme SUPERIEUR_OU_EGAL somme')
+    def comparaison(self, p):
+        return arbre_abstrait.Operation('>=', p[0], p[2])
+    
+    @_('produit')
+    def somme(self, p):
+        return p.produit
+
+    @_('somme "+" produit')
+    def somme(self, p):
+        return arbre_abstrait.Operation('+', p[0], p[2])
+
+    @_('somme "-" produit')
+    def somme(self, p):
+        return arbre_abstrait.Operation('-', p[0], p[2])
+
+    @_('facteur')
+    def produit(self, p):
+        return p.facteur
+
+    @_('produit "*" facteur')
+    def produit(self, p):
+        return arbre_abstrait.Operation('*', p[0], p[2])
+
+    @_('produit "/" facteur')
+    def produit(self, p):
+        return arbre_abstrait.Operation('/', p[0], p[2])
+
+    @_('produit "%" facteur')
+    def produit(self, p):
+        return arbre_abstrait.Operation('%', p[0], p[2])
+
+    #---------------------
+    # Facteurs - ordre important pour éviter les conflits
+    #---------------------
+    @_('ENTIER')
+    def facteur(self, p):
+        return arbre_abstrait.Entier(p.ENTIER) 
+    
+    @_('BOOLEEN')
+    def facteur(self, p):
+        return arbre_abstrait.Booleen(p.BOOLEEN)
+
+    @_('LIRE "(" ")"')
+    def facteur(self, p):
+        return arbre_abstrait.Lire()
+
+    @_('IDENTIFIANT "(" listeArguments ")"')
+    def facteur(self, p):
+        return arbre_abstrait.AppelFonction(p.IDENTIFIANT, p.listeArguments)
+
+    @_('IDENTIFIANT')
+    def facteur(self, p):
+        return arbre_abstrait.Variable(p.IDENTIFIANT)
+
+    @_('"(" expr ")"')
+    def facteur(self, p):
+        return p.expr
+
+    @_('"-" facteur %prec UMINUS')
+    def facteur(self, p):
+        return arbre_abstrait.Operation('-', arbre_abstrait.Entier(0), p[1])
+
+    #---------------------
+    # Arguments - version SANS CONFLITS
+    #---------------------
+    @_('')
+    def listeArguments(self, p):
+        return []
+
+    @_('expr')
+    def listeArguments(self, p):
+        return [p.expr]
+
+    @_('expr "," listeArguments')
+    def listeArguments(self, p):
+        return [p.expr] + p.listeArguments
+
+    #---------------------
+    # Si/sinon si/sinon
+    #---------------------
     @_('liste_elif else_block')
     def liste_elif_else(self, p):
         return (p.liste_elif, p.else_block)
@@ -252,8 +292,6 @@ class FloParser(Parser):
         p.liste_elif.append(p.elif_block)
         return p.liste_elif
 
-
-
     @_('SINON_SI "(" expr ")" "{" listeInstructions "}"')
     def elif_block(self, p):
         return arbre_abstrait.Elif(p.expr, p.listeInstructions)
@@ -262,31 +300,6 @@ class FloParser(Parser):
     def else_block(self, p):
         return arbre_abstrait.Else(p.listeInstructions)
 
-    @_('"(" expr ")"')
-    def facteur(self, p):
-        return p.expr
-
-    @_('"-" facteur')
-    def facteur(self, p):
-        return arbre_abstrait.Operation('-', arbre_abstrait.Entier(0), p[1])
-    
-    @_('TYPE_ENTIER')
-    def TYPE(self, p):
-        return 'entier'
-
-    @_('TYPE_BOOLEEN')
-    def TYPE(self, p):
-        return 'booleen'
-        
-    @_('ENTIER')
-    def facteur(self, p):
-        return arbre_abstrait.Entier(p.ENTIER) 
-    
-    @_('BOOLEEN')
-    def facteur(self, p):
-        return arbre_abstrait.Booleen(p.BOOLEEN)
-
-        
     def error(self, p):
         print('Erreur de syntaxe',p,file=sys.stderr)
         exit(1)

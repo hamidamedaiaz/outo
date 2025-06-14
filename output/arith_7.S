@@ -24,13 +24,13 @@ main:
 	push	{r1}		
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	add	r0,	r0,	r1		 @ effectue l'opération r0+r1 et met le résultat dans r0
+	add	r0,	r0,	r1		 @ effectue l'addition
 	push	{r0}				 @ empile le résultat
 	mov	r1,	#9	
 	push	{r1}		
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	sub	r0,	r0,	r1		 @ effectue l'opération r0-r1 et met le résultat dans r0
+	sub	r0,	r0,	r1		 @ effectue la soustraction
 	push	{r0}				 @ empile le résultat
 	pop	{r1}		
 	ldr	r0,	=.LC1	
@@ -43,7 +43,7 @@ main:
 	push	{r1}		
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	sub	r0,	r0,	r1		 @ effectue l'opération r0-r1 et met le résultat dans r0
+	sub	r0,	r0,	r1		 @ effectue la soustraction
 	push	{r0}				 @ empile le résultat
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
@@ -54,7 +54,7 @@ main:
 	push	{r1}		
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	add	r0,	r0,	r1		 @ effectue l'opération r0+r1 et met le résultat dans r0
+	add	r0,	r0,	r1		 @ effectue l'addition
 	push	{r0}				 @ empile le résultat
 	pop	{r1}		
 	ldr	r0,	=.LC1	
@@ -79,13 +79,13 @@ main:
 	push	{r0}				 @ empile le résultat
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	add	r0,	r0,	r1		 @ effectue l'opération r0+r1 et met le résultat dans r0
+	add	r0,	r0,	r1		 @ effectue l'addition
 	push	{r0}				 @ empile le résultat
 	mov	r1,	#2	
 	push	{r1}		
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	add	r0,	r0,	r1		 @ effectue l'opération r0+r1 et met le résultat dans r0
+	add	r0,	r0,	r1		 @ effectue l'addition
 	push	{r0}				 @ empile le résultat
 	pop	{r1}		
 	ldr	r0,	=.LC1	
@@ -103,13 +103,13 @@ main:
 	push	{r0}				 @ empile le résultat
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	sub	r0,	r0,	r1		 @ effectue l'opération r0-r1 et met le résultat dans r0
+	sub	r0,	r0,	r1		 @ effectue la soustraction
 	push	{r0}				 @ empile le résultat
 	mov	r1,	#4	
 	push	{r1}		
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	add	r0,	r0,	r1		 @ effectue l'opération r0+r1 et met le résultat dans r0
+	add	r0,	r0,	r1		 @ effectue l'addition
 	push	{r0}				 @ empile le résultat
 	pop	{r1}		
 	ldr	r0,	=.LC1	
@@ -134,13 +134,13 @@ main:
 	push	{r0}				 @ empile le résultat
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	add	r0,	r0,	r1		 @ effectue l'opération r0+r1 et met le résultat dans r0
+	add	r0,	r0,	r1		 @ effectue l'addition
 	push	{r0}				 @ empile le résultat
 	mov	r1,	#7	
 	push	{r1}		
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	add	r0,	r0,	r1		 @ effectue l'opération r0+r1 et met le résultat dans r0
+	add	r0,	r0,	r1		 @ effectue l'addition
 	push	{r0}				 @ empile le résultat
 	pop	{r1}		
 	ldr	r0,	=.LC1	
@@ -165,19 +165,19 @@ main:
 	push	{r0}				 @ empile le résultat
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	add	r0,	r0,	r1		 @ effectue l'opération r0+r1 et met le résultat dans r0
+	add	r0,	r0,	r1		 @ effectue l'addition
 	push	{r0}				 @ empile le résultat
 	mov	r1,	#9	
 	push	{r1}		
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	add	r0,	r0,	r1		 @ effectue l'opération r0+r1 et met le résultat dans r0
+	add	r0,	r0,	r1		 @ effectue l'addition
 	push	{r0}				 @ empile le résultat
 	mov	r1,	#2	
 	push	{r1}		
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	add	r0,	r0,	r1		 @ effectue l'opération r0+r1 et met le résultat dans r0
+	add	r0,	r0,	r1		 @ effectue l'addition
 	push	{r0}				 @ empile le résultat
 	pop	{r1}		
 	ldr	r0,	=.LC1	
@@ -202,19 +202,19 @@ main:
 	push	{r0}				 @ empile le résultat
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	sub	r0,	r0,	r1		 @ effectue l'opération r0-r1 et met le résultat dans r0
+	sub	r0,	r0,	r1		 @ effectue la soustraction
 	push	{r0}				 @ empile le résultat
 	mov	r1,	#32	
 	push	{r1}		
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	add	r0,	r0,	r1		 @ effectue l'opération r0+r1 et met le résultat dans r0
+	add	r0,	r0,	r1		 @ effectue l'addition
 	push	{r0}				 @ empile le résultat
 	mov	r1,	#17	
 	push	{r1}		
 	pop	{r1}				 @ dépile exp2 dans r1
 	pop	{r0}				 @ dépile exp1 dans r0
-	add	r0,	r0,	r1		 @ effectue l'opération r0+r1 et met le résultat dans r0
+	add	r0,	r0,	r1		 @ effectue l'addition
 	push	{r0}				 @ empile le résultat
 	pop	{r1}		
 	ldr	r0,	=.LC1	
