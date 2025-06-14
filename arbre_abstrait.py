@@ -5,12 +5,56 @@ def afficher(s,indent=0):
     print(" "*indent+s)
     
 class Programme:
-    def __init__(self, listeInstructions):
+    def __init__(self, listeFonctions, listeInstructions):
+        self.listeFonctions = listeFonctions
         self.listeInstructions = listeInstructions
-    def afficher(self,indent=0):
-        afficher("<programme>",indent)
-        self.listeInstructions.afficher(indent+1)
-        afficher("</programme>",indent)
+    def afficher(self, indent=0):
+        afficher("<programme>", indent)
+        self.listeFonctions.afficher(indent + 1)
+        self.listeInstructions.afficher(indent + 1)
+        afficher("</programme>", indent)
+        
+class ListeFonctions:
+    def __init__(self):
+        self.fonctions = []
+
+    def afficher(self, indent=0):
+        afficher("<listeFonctions>", indent)
+        for fonction in self.fonctions:
+            fonction.afficher(indent + 1)
+        afficher("</listeFonctions>", indent)
+
+class Fonction:
+    def __init__(self, type_retour, nom, parametres, corps):
+        self.type_retour = type_retour
+        self.nom = nom
+        self.parametres = parametres  # ListeParametres
+        self.corps = corps  # ListeInstructions
+
+    def afficher(self, indent=0):
+        afficher(f"<fonction nom='{self.nom}' type_retour='{self.type_retour}'>", indent)
+        self.parametres.afficher(indent + 1)
+        afficher("Corps:", indent + 1)
+        self.corps.afficher(indent + 2)
+        afficher("</fonction>", indent)
+
+class ListeParametres:
+    def __init__(self):
+        self.parametres = []
+
+    def afficher(self, indent=0):
+        afficher("<parametres>", indent)
+        for param in self.parametres:
+            param.afficher(indent + 1)
+        afficher("</parametres>", indent)
+
+class Parametre:
+    def __init__(self, type_param, nom):
+        self.type_param = type_param
+        self.nom = nom
+
+    def afficher(self, indent=0):
+        afficher(f"[Parametre: type={self.type_param}, nom={self.nom}]", indent)       
 
 class ListeInstructions:
     def __init__(self):

@@ -1,5 +1,3 @@
-.global __aeabi_idiv
-    .global __aeabi_idivmod
 .LC0:
     .ascii	"%d\000"
     .align	2
@@ -8,6 +6,8 @@
     .text
     .align	2
     .global	main
+    .global __aeabi_idiv
+    .global __aeabi_idivmod
 main:
 	push	{fp,lr}		
 	add	fp,	sp,	#4

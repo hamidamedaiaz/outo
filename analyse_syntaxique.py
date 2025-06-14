@@ -11,9 +11,52 @@ class FloParser(Parser):
 
 
 
-    @_('listeInstructions')
+
+
+
+    #-----------------------
+    @_('listeFonctions listeInstructions')
     def prog(self, p):
-        return arbre_abstrait.Programme(p.listeInstructions)
+        return arbre_abstrait.Programme(p.listeFonctions, p.listeInstructions)    
+
+    #------------------------------------------
+    @_('')
+    def listeFonctions(self, p):
+        return arbre_abstrait.ListeFonctions()
+
+    @_('fonction listeFonctions')
+    def listeFonctions(self, p):
+        p.listeFonctions.fonctions.insert(0, p.fonction)
+        return p.listeFonctions
+
+    @_('TYPE IDENTIFIANT "(" listeParametres ")" "{" listeInstructions "}"')
+    def fonction(self, p):
+        return arbre_abstrait.Fonction(p.TYPE, p.IDENTIFIANT, p.listeParametres, p.listeInstructions)
+
+    @_('')
+    def listeParametres(self, p):
+        return arbre_abstrait.ListeParametres()
+
+    @_('parametre')
+    def listeParametres(self, p):
+        l = arbre_abstrait.ListeParametres()
+        l.parametres.append(p.parametre)
+        return l
+
+    @_('parametre "," listeParametres')
+    def listeParametres(self, p):
+        p.listeParametres.parametres.insert(0, p.parametre)
+        return p.listeParametres
+
+    @_('TYPE IDENTIFIANT')
+    def parametre(self, p):
+        return arbre_abstrait.Parametre(p.TYPE, p.IDENTIFIANT)
+
+    #---------------------         
+
+
+
+
 
     @_('instruction')
     def listeInstructions(self, p):

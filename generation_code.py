@@ -2,6 +2,7 @@ import sys
 from analyse_lexicale import FloLexer
 from analyse_syntaxique import FloParser
 import arbre_abstrait
+from table_des_symboles import TableDesSymboles
 
 num_etiquette_courante = -1 #Permet de donner des noms différents à toutes les étiquettes (en les appelant e0, e1,e2,...)
 
@@ -66,19 +67,30 @@ def arm_nouvelle_etiquette():
 Affiche le code arm correspondant à tout un programme
 """
 def gen_programme(programme):
-    header=""".global __aeabi_idiv
-    .global __aeabi_idivmod
-.LC0:
+    header=""".LC0:
     .ascii	"%d\\000"
     .align	2
 .LC1:
     .ascii	"%d\\012\\000"
     .text
     .align	2
-    .global	main"""
+    .global	main
+    .global __aeabi_idiv
+    .global __aeabi_idivmod"""
     printifm(header)
     
-
+    
+    for fonction in programme.listeFonctions.fonctions:
+        table_symboles.ajouter_fonction(fonction.nom, fonction.type_retour)
+    
+   
+    if afficher_table:
+        table_symboles.afficher()
+        return
+    
+    
+    for fonction in programme.listeFonctions.fonctions:
+        gen_fonction(fonction)
     
     printifm('main:')
     arm_instruction("push", "{fp,lr}", "", "", "")
