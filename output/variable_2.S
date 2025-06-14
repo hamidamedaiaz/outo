@@ -86,3 +86,24 @@ e7:
 	beq	e5				 @ saut si condition fausse
 	mov	r1,	#5	
 	push	{r1}		
+	pop	{r0}				 @ valeur pour variable c
+	push	{r0}				 @ stocker variable c
+	ldr	r2,	[fp, #-4]			 @ charger variable a
+	push	{r2}		
+	pop	{r1}		
+	ldr	r0,	=.LC1	
+	bl	printf		
+	ldr	r2,	[fp, #-4]			 @ charger variable a
+	push	{r2}		
+	ldr	r2,	[fp, #-16]			 @ charger variable c
+	push	{r2}		
+	pop	{r1}				 @ dépile exp2 dans r1
+	pop	{r0}				 @ dépile exp1 dans r0
+	add	r0,	r0,	r1		 @ effectue l'addition
+	push	{r0}				 @ empile le résultat
+	pop	{r0}				 @ valeur à affecter
+	str	r0,	[fp, #-4]			 @ affecter à a
+	b	e4				 @ retour au début de la boucle
+e5:
+	mov	r0,	#0	
+	pop	{fp, pc}		

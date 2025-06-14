@@ -74,13 +74,21 @@ def gen_programme(programme):
     for fonction in programme.listeFonctions.fonctions:
         gen_fonction(fonction)
     
-    # Code principal
-    printifm('main:')
-    arm_instruction("push", "{fp,lr}", "", "", "")
-    arm_instruction("add", "fp","sp", "#4", "")
-    gen_listeInstructions(programme.listeInstructions)
-    arm_instruction("mov", "r0", "#0", "", "")
-    arm_instruction("pop", "{fp, pc}","","","")
+    # Code principal - SEULEMENT s'il y a des instructions principales
+    if programme.listeInstructions.instructions:
+        printifm('main:')
+        arm_instruction("push", "{fp,lr}", "", "", "")
+        arm_instruction("add", "fp","sp", "#4", "")
+        gen_listeInstructions(programme.listeInstructions)
+        arm_instruction("mov", "r0", "#0", "", "")
+        arm_instruction("pop", "{fp, pc}","","","")
+    else:
+        # S'il n'y a pas d'instructions principales, créer un main vide
+        printifm('main:')
+        arm_instruction("push", "{fp,lr}", "", "", "")
+        arm_instruction("add", "fp","sp", "#4", "")
+        arm_instruction("mov", "r0", "#0", "", "")
+        arm_instruction("pop", "{fp, pc}","","","")
 
 def gen_fonction(fonction):
     global table_symboles
@@ -218,14 +226,18 @@ def gen_tantque(tantque):
     printifm(etiq_debut + ":")
     
     type_cond = gen_expression(tantque.condition)
-    if type_cond != "booléen":
+    if type_cond != "booleen":
         erreur("Condition de 'tantque' doit être booléenne")
     
     arm_instruction("pop", "{r1}", "", "", "dépile la condition")
     arm_instruction("cmp", "r1", "#0", "", "teste si condition == 0 (faux)")
     arm_instruction("beq", etiq_fin, "", "", "saut si condition fausse")
     
+    # Entrer dans un nouveau bloc pour les variables locales
+    table_symboles.entrer_bloc()
     gen_listeInstructions(tantque.bloc)
+    table_symboles.sortir_bloc()
+    
     arm_instruction("b", etiq_debut, "", "", "retour au début de la boucle")
     printifm(etiq_fin + ":")
 
@@ -234,14 +246,18 @@ def gen_si(si):
     etiq_sinon = arm_nouvelle_etiquette()
     
     type_cond = gen_expression(si.condition)
-    if type_cond != "booléen":
+    if type_cond != "booleen":
         erreur("Condition de 'si' doit être booléenne")
     
     arm_instruction("pop", "{r1}", "", "", "dépile la condition")
     arm_instruction("cmp", "r1", "#0", "", "teste si condition == 0 (faux)")
     arm_instruction("beq", etiq_sinon, "", "", "saut si condition fausse")
     
+    # Entrer dans un nouveau bloc pour les variables locales
+    table_symboles.entrer_bloc()
     gen_listeInstructions(si.corps_si)
+    table_symboles.sortir_bloc()
+    
     arm_instruction("b", etiq_fin, "", "", "saut vers la fin")
     
     printifm(etiq_sinon + ":")
@@ -251,7 +267,9 @@ def gen_si(si):
             gen_elif(elif_block, etiq_fin)
     
     if si.corps_sinon:
+        table_symboles.entrer_bloc()
         gen_listeInstructions(si.corps_sinon.corps_else)
+        table_symboles.sortir_bloc()
     
     printifm(etiq_fin + ":")
 
@@ -259,14 +277,18 @@ def gen_elif(elif_block, etiq_fin):
     etiq_next = arm_nouvelle_etiquette()
     
     type_cond = gen_expression(elif_block.condition)
-    if type_cond != "booléen":
+    if type_cond != "booleen":
         erreur("Condition de 'sinon si' doit être booléenne")
     
     arm_instruction("pop", "{r1}", "", "", "dépile la condition")
     arm_instruction("cmp", "r1", "#0", "", "teste si condition == 0 (faux)")
     arm_instruction("beq", etiq_next, "", "", "saut si condition fausse")
     
+    # Entrer dans un nouveau bloc pour les variables locales
+    table_symboles.entrer_bloc()
     gen_listeInstructions(elif_block.corps_elif)
+    table_symboles.sortir_bloc()
+    
     arm_instruction("b", etiq_fin, "", "", "saut vers la fin")
     printifm(etiq_next + ":")
 
@@ -290,7 +312,7 @@ def gen_expression(expression):
         valeur = 1 if expression.valeur else 0
         arm_instruction("mov", "r1", "#"+str(valeur), "", "")
         arm_instruction("push", "{r1}", "", "", "")
-        return "booléen"
+        return "booleen"
     elif type(expression) == arbre_abstrait.Lire:
         gen_lire(expression)
         return "entier"
@@ -318,15 +340,15 @@ def gen_operation(operation):
 
     if op == 'non':
         type1 = gen_expression(operation.exp1)
-        if type1 != "booléen":
+        if type1 != "booleen":
             erreur(f"Erreur de type : opérateur logique 'non' appliqué à un non-booléen")
         arm_instruction("pop", "{r0}", "", "", "dépile exp1 dans r0")
         arm_instruction("cmp", "r0", "#0", "", "compare à 0")
         arm_instruction("moveq", "r0", "#1", "", "si égal à 0 -> 1")
         arm_instruction("movne", "r0", "#0", "", "sinon -> 0")
         arm_instruction("push", "{r0}", "", "", "empile le résultat")
-        operation.type = "booléen"
-        return "booléen"
+        operation.type = "booleen"
+        return "booleen"
 
     type1 = gen_expression(operation.exp1)
     type2 = gen_expression(operation.exp2)
@@ -355,7 +377,7 @@ def gen_operation(operation):
     elif op in ['==', '!=', '<', '>', '<=', '>=']:
         if type1 != "entier" or type2 != "entier":
             erreur(f"Erreur de type : opérateur de comparaison '{op}' appliqué à des non-entiers")
-        operation.type = "booléen"
+        operation.type = "booleen"
         
         arm_instruction("cmp", "r0", "r1", "", "compare r0 et r1")
         etiq_vrai = arm_nouvelle_etiquette()
@@ -372,9 +394,9 @@ def gen_operation(operation):
         printifm(etiq_fin + ":")
 
     elif op in ['et', 'ou']:
-        if type1 != "booléen" or type2 != "booléen":
+        if type1 != "booleen" or type2 != "booleen":
             erreur(f"Erreur de type : opérateur logique '{op}' appliqué à des non-booléens")
-        operation.type = "booléen"
+        operation.type = "booleen"
         
         if op == 'et':
             arm_instruction("mul", "r0", "r0", "r1", "et booléen = multiplication")

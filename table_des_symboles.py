@@ -110,10 +110,12 @@ class TableDesSymboles:
         """
         Ajoute une variable à la table des symboles
         """
-        # Vérifier si la variable existe déjà dans le contexte courant
+        # Vérifier si la variable existe déjà dans le contexte courant SEULEMENT
         if nom in self.variables:
             info_var = self.variables[nom]
-            if info_var.get('profondeur', 0) == self.profondeur:
+            # Ne vérifier la redéfinition que dans la même profondeur ET même fonction
+            if (info_var.get('profondeur', 0) == self.profondeur and 
+                info_var.get('fonction', None) == self.contexte_fonction):
                 raise Exception(f"Erreur: variable '{nom}' déjà définie dans ce contexte")
         
         if adresse is None:
@@ -124,7 +126,8 @@ class TableDesSymboles:
         self.variables[nom] = {
             'type': type_var,
             'adresse': adresse,
-            'profondeur': self.profondeur
+            'profondeur': self.profondeur,
+            'fonction': self.contexte_fonction
         }
 
     def obtenir_variable(self, nom):
@@ -173,7 +176,7 @@ class TableDesSymboles:
         print("Variables:")
         if self.variables:
             for nom, info in self.variables.items():
-                print(f"  {nom}: {info['type']} @ {info['adresse']} (profondeur: {info.get('profondeur', 0)})")
+                print(f"  {nom}: {info['type']} @ {info['adresse']} (profondeur: {info.get('profondeur', 0)}, fonction: {info.get('fonction', 'global')})")
         else:
             print("  Aucune variable définie")
         print("==========================")
