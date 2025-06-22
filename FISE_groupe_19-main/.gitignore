@@ -1,0 +1,19 @@
+# Ignorer les fichiers compilés Python
+*.pyc
+__pycache__/
+# Ignorer les fichiers temporaires
+*.log
+*.tmp
+
+# Ignorer les dossiers d'IDE
+.vscode/
+.idea/
+
+# Ignorer les fichiers de build
+build/
+dist/
+output/
+
+__pycache__/analyse_lexicale.cpython-38.pyc
+__pycache__/analyse_syntaxique.cpython-38.pyc
+__pycache__/arbre_abstrait.cpython-38.pyc

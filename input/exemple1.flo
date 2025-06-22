@@ -1,3 +1,0 @@
-entier somme(entier a, entier b) {
-    retourner a + b;
-}

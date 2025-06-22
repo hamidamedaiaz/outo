@@ -1,0 +1,49 @@
+# Définitions de fonctions
+
+entier puissance(entier a, entier b) {
+    entier i;
+    entier r;
+    i = 0;
+    r = 1;
+    tantque (i < b) {
+        i = i + 1;
+        r = r * a;
+    }
+    retourner r;
+}
+
+entier factorial(entier n) {
+    entier result;
+    result = 1;
+    tantque (n > 1) {
+        result = result * n;
+        n = n - 1;
+    }
+    retourner result;
+}
+
+entier gcd(entier a, entier b) {
+    si (b == 0) {
+        retourner a;
+    }
+    retourner gcd(b, a % b);
+}
+
+entier fib(entier n) {
+    si (n <= 1) {
+        retourner n;
+    }
+    retourner fib(n - 1) + fib(n - 2);
+}
+
+# Tests top-level
+
+ecrire(gcd(48, 18));                # attendu 6
+ecrire(gcd(101, 10));               # attendu 1
+
+ecrire(gcd(factorial(4), puissance(2,5))); 
+
+ecrire(fib(gcd(30, 12)));           # gcd(30,12)=6 → fib(6)=8
+
+ecrire( (gcd(14,21) % 2) == 0 );    # gcd=7 → 7%2==1 → 0
+ecrire(non ((gcd(14,21) % 2) == 0));# non 0 → 1

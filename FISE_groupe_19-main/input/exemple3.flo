@@ -1,0 +1,97 @@
+entier factorial(entier n) {
+    entier result;
+    result = 1;
+    tantque (n > 1) {
+        result = result * n;
+        n = n - 1;
+    }
+    retourner result;
+}
+
+booleen is_even(entier n) {
+    si (n % 2 == 0) {
+        retourner Vrai;
+    }
+    retourner Faux;
+}
+
+entier fib(entier n) {
+    si (n <= 1) {
+        retourner n;
+    }
+    retourner fib(n - 1) + fib(n - 2);
+}
+
+entier gcd(entier a, entier b) {
+    si (b == 0) {
+        retourner a;
+    }
+    retourner gcd(b, a % b);
+}
+
+entier sum_to_n(entier n) {
+    entier acc;
+    acc = 0;
+    entier i;
+    i = 1;
+    tantque (i <= n) {
+        acc = acc + i;
+        i = i + 1;
+    }
+    retourner acc;
+}
+
+booleen all_even(entier n) {
+    si (n == 0) {
+        retourner Vrai;
+    }
+    si (non is_even(n)) {
+        retourner Faux;
+    }
+    retourner all_even(n - 1);
+}
+
+entier max(entier a, entier b) {
+    si (a >= b) {
+        retourner a;
+    }
+    retourner b;
+}
+
+entier min(entier a, entier b) {
+    si (a <= b) {
+        retourner a;
+    }
+    retourner b;
+}
+
+entier abs_val(entier x) {
+    si (x < 0) {
+        retourner -x;
+    }
+    retourner x;
+}
+
+entier main() {
+    ecrire(factorial(lire()));
+    ecrire(fib(lire()));
+    ecrire(gcd(lire(), lire()));
+    ecrire(sum_to_n(lire()));
+    ecrire(is_even(lire()));
+    ecrire(all_even(lire()));
+    ecrire(max(lire(), lire()));
+    ecrire(min(lire(), lire()));
+    ecrire(abs_val(lire()));
+    ecrire(non Faux);
+    ecrire(Vrai);
+    ecrire(Faux);
+    ecrire((lire() + lire()) * lire() % lire());
+    si (lire() > lire()) {
+        ecrire(1);
+    } sinon si (lire() < lire()) {
+        ecrire(2);
+    } sinon {
+        ecrire(3);
+    }
+    retourner 0;
+}
